@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var index_1 = require('../index');
 const request = require('request');
-const host = 'http://localhost:3001';
+const host = 'http://localhost:3000';
 function toBuffer(file) {
     let buffer = new Buffer(file.byteLength);
     let view = new Uint8Array(file);
@@ -26,11 +26,14 @@ function toBuffer(file) {
     }
     return buffer;
 }
-describe('Test Request', () => {
+describe('Test Limit', () => {
     beforeAll((done) => {
         const Koa = require('koa');
         const busboy = new index_1.default({
-            uploadDir: '/var/tmp'
+            limits: {
+                fields: 1,
+                fileSize: 1
+            }
         });
         const app = new Koa();
         app.use(busboy.middleware((error, ctx) => {
@@ -44,32 +47,11 @@ describe('Test Request', () => {
                 ctx.body = 'hello world';
             }
         });
-        app.listen(3001, () => {
+        app.listen(3000, () => {
             done();
         });
     });
-    it('should support application/x-www-form-urlencoded', (done) => {
-        request({
-            method: 'POST',
-            uri: host,
-            form: {
-                abc: 'edf',
-                123: '456'
-            },
-            json: true
-        }, (error, response, body) => {
-            if (error && response.statusCode !== 200)
-                throw error;
-            expect(body).toEqual({
-                fields: {
-                    123: '456',
-                    abc: 'edf'
-                }, files: {}
-            });
-            done();
-        });
-    });
-    it('should support multipart/form-data', (done) => {
+    it('should throw fieldsLimit', (done) => {
         request({
             method: 'POST',
             uri: host,
@@ -79,33 +61,20 @@ describe('Test Request', () => {
             },
             json: true
         }, (error, response, body) => {
-            if (error && response.statusCode !== 200)
-                throw error;
-            expect(body).toEqual({
-                fields: {
-                    123: '456',
-                    abc: 'edf'
-                }, files: {}
-            });
+            expect(response.statusCode).toBe(400);
+            expect(body).toEqual('fieldsLimit');
             done();
         });
     });
-    it('should support uploading files', (done) => {
+    it('should throw filesSizeLimit', (done) => {
         let req = request({
             method: 'POST',
             uri: host,
-            formData: {
-                abc: 'edf',
-                123: '456'
-            },
+            formData: {},
             json: true
         }, (error, response, body) => {
-            if (error && response.statusCode !== 200)
-                throw error;
-            expect(body.fields).toEqual({});
-            expect(body.files.fileData.fileName).toEqual('dummy.txt');
-            expect(body.files.fileData.mimeType).toEqual('text/plain');
-            expect(body.files.fileData.tmpPath).toContain('/var/tmp');
+            expect(response.statusCode).toBe(400);
+            expect(body).toEqual('filesSizeLimit');
             done();
         });
         let form = req.form();

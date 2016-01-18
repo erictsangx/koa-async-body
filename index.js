@@ -52,15 +52,15 @@ function parser(req, options) {
         let hasError;
         busboy.on('file', function (fieldName, stream, filename, encoding, mimeType) {
             //save tmp files
-            const tmpPath = (options.uploadDir ? options.uploadDir : os.tmpDir());
-            const saveTo = tmp.tmpNameSync({ template: tmpPath + '/upload-XXXXXXXXXXXXXXXXXXX' });
-            stream.pipe(fs.createWriteStream(saveTo));
+            const tmpDir = (options.uploadDir ? options.uploadDir : os.tmpDir());
+            const tmpPath = tmp.tmpNameSync({ template: tmpDir + '/upload-XXXXXXXXXXXXXXXXXXX' });
+            stream.pipe(fs.createWriteStream(tmpPath));
             stream.on('end', function () {
                 //push file data
                 formData.files[fieldName] = {
                     fileName: filename,
                     mimeType: mimeType,
-                    savedPath: saveTo
+                    tmpPath: tmpPath
                 };
             });
             stream.on('limit', function () {
@@ -99,7 +99,6 @@ class KoaBusBoy {
         return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
             try {
                 ctx.formData = yield parser(ctx.req, this.options);
-                console.info('ctx.formData', ctx.formData);
                 yield next();
             }
             catch (error) {

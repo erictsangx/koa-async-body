@@ -7,7 +7,7 @@
 
 import KoaBusBoy from '../index';
 const request = require('request');
-const host = 'http://localhost:3001';
+const host = 'http://localhost:3000';
 
 
 function toBuffer (file: any) {
@@ -20,12 +20,15 @@ function toBuffer (file: any) {
 }
 
 
-describe('Test Request', () => {
+describe('Test Limit', () => {
     beforeAll((done)=> {
         const Koa = require('koa');
 
         const busboy = new KoaBusBoy({
-            uploadDir: '/var/tmp'
+            limits: {
+                fields: 1,
+                fileSize: 1
+            }
         });
 
         const app = new Koa();
@@ -42,66 +45,35 @@ describe('Test Request', () => {
             }
         });
 
-        app.listen(3001, ()=> {
+        app.listen(3000, ()=> {
             done();
         });
     });
-    it('should support application/x-www-form-urlencoded', (done) => {
+    it('should throw fieldsLimit', (done) => {
         request({
             method: 'POST',
             uri: host,
-            form: {
+            formData: {
                 abc: 'edf',
                 123: '456'
             },
             json: true
         }, (error: Error, response: any, body: any) => {
-            if (error && response.statusCode !== 200) throw error;
-            expect(body).toEqual({
-                fields: {
-                    123: '456',
-                    abc: 'edf'
-                }, files: {}
-            });
+            expect(response.statusCode).toBe(400);
+            expect(body).toEqual('fieldsLimit');
             done();
         });
     });
 
-    it('should support multipart/form-data', (done) => {
-        request({
-            method: 'POST',
-            uri: host,
-            formData: {
-                abc: 'edf',
-                123: '456'
-            },
-            json: true
-        }, (error: Error, response: any, body: any) => {
-            if (error && response.statusCode !== 200) throw error;
-            expect(body).toEqual({
-                fields: {
-                    123: '456',
-                    abc: 'edf'
-                }, files: {}
-            });
-            done();
-        });
-    });
-    it('should support uploading files', (done) => {
+    it('should throw filesSizeLimit', (done) => {
         let req = request({
             method: 'POST',
             uri: host,
-            formData: {
-                abc: 'edf',
-                123: '456'
-            },
+            formData: {},
             json: true
         }, (error: Error, response: any, body: any) => {
-            if (error && response.statusCode !== 200) throw error;
-            expect(body.fields).toEqual({});
-            expect(body.files.fileData.fileName).toEqual('dummy.txt');
-            expect(body.files.fileData.mimeType).toEqual('text/plain');
-            expect(body.files.fileData.tmpPath).toContain('/var/tmp');
+            expect(response.statusCode).toBe(400);
+            expect(body).toEqual('filesSizeLimit');
             done();
         });
 
@@ -112,6 +84,5 @@ describe('Test Request', () => {
             filename: 'dummy.txt'
         });
     });
-
 
 });
