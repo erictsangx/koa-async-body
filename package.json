@@ -1,0 +1,23 @@
+{
+  "name": "koa-busboy",
+  "version": "1.0.0",
+  "description": "A middleware written on top of busboy for koa2.x",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "koa",
+    "koa2.x",
+    "busboy",
+    "middleware",
+    "form",
+    "multipart"
+  ],
+  "author": "erictsangx",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "busboy": "^0.2.12",
+    "koa": "^2.0.0-alpha.3"
+  }
+}
