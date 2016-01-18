@@ -18,6 +18,11 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "busboy": "^0.2.12",
-    "koa": "^2.0.0-alpha.3"
+    "glob": "^6.0.4",
+    "gulp": "^3.9.0",
+    "jasmine": "^2.4.1",
+    "koa": "^2.0.0-alpha.3",
+    "request": "^2.67.0",
+    "tmp": "0.0.28"
   }
 }

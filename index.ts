@@ -5,11 +5,13 @@
 'use strict';
 
 const Busboy = require('busboy');
-const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const tmp = require('tmp');
+
 import {IncomingMessage} from 'http';
 import ReadableStream = NodeJS.ReadableStream;
+
 const parseParams = require('busboy/lib/utils').parseParams;
 
 interface IOptions {
@@ -17,7 +19,7 @@ interface IOptions {
     highWaterMark?: number;
     fileHwm?: number;
     defCharset?: number;
-    preservePath?: number;
+    preservePath?: boolean;
     limits?: {
         fieldNameSize?: number;
         fieldSize?: number;
@@ -31,7 +33,7 @@ interface IOptions {
 }
 
 function parser (req: IncomingMessage, options?: IOptions) {
-    //ignore content-types except 'application/x-www-form-urlencoded' & 'multipart/form-data'
+    //ignore content-types if it is 'application/x-www-form-urlencoded' & 'multipart/form-data'
     if (!req.headers['content-type']) {
         return new Promise((resolve)=> {
             resolve(null);
@@ -61,21 +63,15 @@ function parser (req: IncomingMessage, options?: IOptions) {
         };
         let hasError: string;
         busboy.on('file', function(fieldName: string, stream: ReadableStream, filename: string, encoding: string, mimeType: string) {
-            let saveTo: string;
-            if (options.uploadDir) {
-                saveTo = path.join(options.uploadDir, path.basename(fieldName + new Date));
-            }
-            else {
-                saveTo = path.join(os.tmpdir(), path.basename(fieldName + new Date));
-            }
             //save tmp files
+            const tmpPath = (options.uploadDir ? options.uploadDir : os.tmpDir());
+            const saveTo = tmp.tmpNameSync({template: tmpPath + '/upload-XXXXXXXXXXXXXXXXXXX'});
             stream.pipe(fs.createWriteStream(saveTo));
 
             stream.on('end', function() {
                 //push file data
                 formData.files[fieldName] = {
                     fileName: filename,
-                    encoding: encoding,
                     mimeType: mimeType,
                     savedPath: saveTo
                 };
@@ -121,6 +117,7 @@ class KoaBusBoy {
         return async (ctx: any, next: any) => {
             try {
                 ctx.formData = await parser(ctx.req, this.options);
+                console.info('ctx.formData', ctx.formData);
                 await next();
             } catch (error) {
                 if (cb) {

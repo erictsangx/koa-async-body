@@ -16,12 +16,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 const Busboy = require('busboy');
-const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const tmp = require('tmp');
 const parseParams = require('busboy/lib/utils').parseParams;
 function parser(req, options) {
-    //ignore content-types except 'application/x-www-form-urlencoded' & 'multipart/form-data'
+    //ignore content-types if it is 'application/x-www-form-urlencoded' & 'multipart/form-data'
     if (!req.headers['content-type']) {
         return new Promise((resolve) => {
             resolve(null);
@@ -51,20 +51,14 @@ function parser(req, options) {
         };
         let hasError;
         busboy.on('file', function (fieldName, stream, filename, encoding, mimeType) {
-            let saveTo;
-            if (options.uploadDir) {
-                saveTo = path.join(options.uploadDir, path.basename(fieldName + new Date));
-            }
-            else {
-                saveTo = path.join(os.tmpdir(), path.basename(fieldName + new Date));
-            }
             //save tmp files
+            const tmpPath = (options.uploadDir ? options.uploadDir : os.tmpDir());
+            const saveTo = tmp.tmpNameSync({ template: tmpPath + '/upload-XXXXXXXXXXXXXXXXXXX' });
             stream.pipe(fs.createWriteStream(saveTo));
             stream.on('end', function () {
                 //push file data
                 formData.files[fieldName] = {
                     fileName: filename,
-                    encoding: encoding,
                     mimeType: mimeType,
                     savedPath: saveTo
                 };
@@ -105,6 +99,7 @@ class KoaBusBoy {
         return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
             try {
                 ctx.formData = yield parser(ctx.req, this.options);
+                console.info('ctx.formData', ctx.formData);
                 yield next();
             }
             catch (error) {
