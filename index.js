@@ -112,4 +112,4 @@ class KoaBusBoy {
         });
     }
 }
-exports.default = KoaBusBoy;
+module.exports = KoaBusBoy;

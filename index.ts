@@ -130,4 +130,4 @@ class KoaBusBoy {
     }
 }
 
-export default KoaBusBoy;
+module.exports = KoaBusBoy;

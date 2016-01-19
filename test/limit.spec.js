@@ -15,21 +15,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var index_1 = require('../index');
+const KoaBusBoy = require('../index.js');
 const request = require('request');
 const host = 'http://localhost:3000';
-function toBuffer(file) {
-    let buffer = new Buffer(file.byteLength);
-    let view = new Uint8Array(file);
-    for (let i = 0; i < buffer.length; ++i) {
-        buffer[i] = view[i];
-    }
-    return buffer;
-}
+var testing_1 = require('./testing');
 describe('Test Limit', () => {
     beforeAll((done) => {
         const Koa = require('koa');
-        const busboy = new index_1.default({
+        const busboy = new KoaBusBoy({
             limits: {
                 fields: 1,
                 fileSize: 1
@@ -80,7 +73,7 @@ describe('Test Limit', () => {
         let form = req.form();
         let fs = require('fs');
         let file = fs.readFileSync(__dirname + '/dummy.txt');
-        form.append('fileData', toBuffer(file), {
+        form.append('fileData', testing_1.toBuffer(file), {
             filename: 'dummy.txt'
         });
     });
