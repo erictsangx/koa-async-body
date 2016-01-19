@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 const KoaBusBoy = require('../index.js');
 const request = require('request');
-const host = 'http://localhost:3001';
+const host = 'http://localhost:3000';
 var testing_1 = require('./testing');
 describe('Test Request', () => {
     beforeAll((done) => {
@@ -26,9 +26,7 @@ describe('Test Request', () => {
             uploadDir: '/var/tmp'
         });
         const app = new Koa();
-        app.use(busboy.middleware((error, ctx) => {
-            ctx.throw(400, error);
-        }));
+        app.use(busboy);
         app.use((ctx) => {
             if (ctx.formData) {
                 ctx.body = ctx.formData;
@@ -37,7 +35,7 @@ describe('Test Request', () => {
                 ctx.body = 'hello world';
             }
         });
-        app.listen(3001, () => {
+        app.listen(3000, () => {
             done();
         });
     });

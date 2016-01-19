@@ -7,12 +7,13 @@
 
 const KoaBusBoy = require('../index.js');
 const request = require('request');
-const host = 'http://localhost:3000';
+const host = 'http://localhost:3001';
 
 import {toBuffer} from './testing';
 
 describe('Test Limit', () => {
     beforeAll((done)=> {
+        jasmine.DEFAULT_TIMEOUT_INTERVAL=1000;
         const Koa = require('koa');
 
         const busboy = new KoaBusBoy({
@@ -24,9 +25,7 @@ describe('Test Limit', () => {
 
         const app = new Koa();
 
-        app.use(busboy.middleware((error: Error, ctx: any)=> {
-            ctx.throw(400, error);
-        }));
+        app.use(busboy);
 
         app.use((ctx: any)=> {
             if (ctx.formData) {
@@ -36,7 +35,11 @@ describe('Test Limit', () => {
             }
         });
 
-        app.listen(3000, ()=> {
+        app.on('error', (error: Error, ctx: any)=> {
+            ctx.status = 400;
+            ctx.body = error.message;
+        });
+        app.listen(3001, ()=> {
             done();
         });
     });

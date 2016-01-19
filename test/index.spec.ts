@@ -7,7 +7,7 @@
 
 const KoaBusBoy = require('../index.js');
 const request = require('request');
-const host = 'http://localhost:3001';
+const host = 'http://localhost:3000';
 
 import {toBuffer} from './testing';
 
@@ -21,9 +21,7 @@ describe('Test Request', () => {
 
         const app = new Koa();
 
-        app.use(busboy.middleware((error: Error, ctx: any)=> {
-            ctx.throw(400, error);
-        }));
+        app.use(busboy);
 
         app.use((ctx: any)=> {
             if (ctx.formData) {
@@ -33,7 +31,7 @@ describe('Test Request', () => {
             }
         });
 
-        app.listen(3001, ()=> {
+        app.listen(3000, ()=> {
             done();
         });
     });
