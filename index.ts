@@ -106,28 +106,18 @@ function parser (req: IncomingMessage, options?: IOptions) {
 }
 
 
-class KoaBusBoy {
-    options: IOptions;
-
-    constructor (options?: IOptions) {
-        this.options = options;
-    }
-
-    middleware (cb?: (error: Error, ctx: any)=>void) {
-        return async (ctx: any, next: any) => {
-            try {
-                ctx.formData = await parser(ctx.req, this.options);
-                await next();
-            } catch (error) {
-                if (cb) {
-                    cb(error, ctx);
-                }
-                else {
-                    throw error;
-                }
+function KoaBusBoy (options?: IOptions) {
+    return async (ctx: any, next: any) => {
+        try {
+            ctx.formData = await parser(ctx.req, options);
+            return next();
+        } catch (error) {
+            if(!(error instanceof Error)) {
+                error = new Error(error);
             }
-        };
-    }
+            ctx.app.emit('error', error, ctx);
+        }
+    };
 }
 
 module.exports = KoaBusBoy;

@@ -91,25 +91,18 @@ function parser(req, options) {
         req.pipe(busboy);
     });
 }
-class KoaBusBoy {
-    constructor(options) {
-        this.options = options;
-    }
-    middleware(cb) {
-        return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
-            try {
-                ctx.formData = yield parser(ctx.req, this.options);
-                yield next();
+function KoaBusBoy(options) {
+    return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
+        try {
+            ctx.formData = yield parser(ctx.req, options);
+            return next();
+        }
+        catch (error) {
+            if (!(error instanceof Error)) {
+                error = new Error(error);
             }
-            catch (error) {
-                if (cb) {
-                    cb(error, ctx);
-                }
-                else {
-                    throw error;
-                }
-            }
-        });
-    }
+            ctx.app.emit('error', error, ctx);
+        }
+    });
 }
 module.exports = KoaBusBoy;
