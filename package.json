@@ -4,7 +4,7 @@
   "description": "A middleware written on top of busboy for koa2.x",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp test"
   },
   "keywords": [
     "koa",
@@ -15,7 +15,7 @@
     "multipart"
   ],
   "author": "erictsangx",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "devDependencies": {
     "busboy": "^0.2.12",
     "glob": "^6.0.4",
