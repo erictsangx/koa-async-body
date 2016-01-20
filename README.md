@@ -1,8 +1,8 @@
-```
+```javascript
 'use strict';
 
 const Koa = require('koa');
-import KoaBusBoy from './lib/parser';
+const KoaBusBoy = require('koa2-busboy');
 
 const busboy = new KoaBusBoy({
     limits: {
@@ -15,11 +15,9 @@ const busboy = new KoaBusBoy({
 
 const app = new Koa();
 
-app.use(busboy.middleware((error: Error, ctx: any)=> {
-    ctx.throw(400, error);
-}));
+app.use(busboy);
 
-app.use((ctx: any)=> {
+app.use((ctx)=> {
     if (ctx.formData) {
         ctx.body = ctx.formData;
     } else {

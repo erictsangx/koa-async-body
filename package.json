@@ -1,10 +1,19 @@
 {
-  "name": "koa-busboy",
+  "name": "koa2-busboy",
   "version": "1.0.0",
-  "description": "A middleware written on top of busboy for koa2.x",
+  "description": "A middleware written on top of busboy for koa2.x to parse url-encoded/multiplart form data",
   "main": "index.js",
   "scripts": {
     "test": "gulp test"
+  },
+  "devDependencies": {
+    "busboy": "^0.2.12",
+    "glob": "^6.0.4",
+    "gulp": "^3.9.0",
+    "jasmine": "^2.4.1",
+    "koa": "^2.0.0-alpha.3",
+    "request": "^2.67.0",
+    "tmp": "0.0.28"
   },
   "keywords": [
     "koa",
@@ -15,14 +24,5 @@
     "multipart"
   ],
   "author": "erictsangx",
-  "license": "MIT",
-  "devDependencies": {
-    "busboy": "^0.2.12",
-    "glob": "^6.0.4",
-    "gulp": "^3.9.0",
-    "jasmine": "^2.4.1",
-    "koa": "^2.0.0-alpha.3",
-    "request": "^2.67.0",
-    "tmp": "0.0.28"
-  }
+  "license": "MIT"
 }
