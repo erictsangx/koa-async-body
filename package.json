@@ -1,6 +1,6 @@
 {
   "name": "koa2-busboy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A middleware written on top of busboy for koa2.x to parse url-encoded/multiplart form data",
   "main": "index.js",
   "scripts": {

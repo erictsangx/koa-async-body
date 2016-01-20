@@ -1,9 +1,10 @@
 This middleware is written on top of busboy for koa2.x to parse url-encoded/multiplart form data and ``async/await`` since koa2.x does not support ``generator`` any more and most of koa body parsers are still using ``generator``
 
-##install
+PS: busboy only support `content-type`: `multipart/form-data;` and `application/x-www-form-urlencoded`
+##Install
 ``npm install koa2-busboy``
 
-##example
+##Example
 ```javascript
 'use strict';
 
@@ -33,4 +34,18 @@ app.use((ctx)=> {
 });
 
 app.listen(3000);
+//curl -v -X POST 'http://localhost:3000' --data-urlencode 'hello=world'
 ```
+
+##Error handling
+```javascript
+app.on('error',(error,ctx)=>{
+    // Error('filesSizeLimit')
+    // Error('partsLimit')
+    // Error('filesLimit')
+    // Error('fieldsLimit')
+    if(error.message === 'filesSizeLimit')  {
+        ctx.status = 400;
+        ctx.body = 'filesize too big!!!'
+    }
+});
