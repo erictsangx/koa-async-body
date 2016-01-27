@@ -33,19 +33,27 @@ interface IOptions {
 }
 
 function parser (req: IncomingMessage, options?: IOptions) {
-    //ignore content-types if it is 'application/x-www-form-urlencoded' & 'multipart/form-data'
     if (!req.headers['content-type']) {
         return new Promise((resolve)=> {
             resolve(null);
         });
-    } else {
-        const parsed = parseParams(req.headers['content-type']);
-        if (parsed[0] !== 'application/x-www-form-urlencoded' && parsed[0] !== 'multipart/form-data') {
-            return new Promise((resolve)=> {
-                resolve(null);
-            });
+    }
+
+    const parsed = parseParams(req.headers['content-type']);
+
+    if (parsed[0] === 'multipart/form-data') {
+        return formParser(req, options);
+    }
+
+    else {
+        if (parsed[0] === 'application/json') {
+            return jsonParser(req);
         }
     }
+}
+
+
+function formParser (req: IncomingMessage, options?: IOptions) {
 
     if (options) {
         options.headers = req.headers;
@@ -106,13 +114,32 @@ function parser (req: IncomingMessage, options?: IOptions) {
 }
 
 
+function jsonParser (req: IncomingMessage) {
+    return new Promise((resolve) => {
+        let fullBody = '';
+
+        req.on('data', (chunk: any) => {
+            fullBody += chunk.toString();
+        });
+
+        req.on('end', ()=> {
+            try {
+                fullBody = JSON.parse(fullBody);
+                resolve(fullBody);
+            } catch (error) {
+                resolve({});
+            }
+        });
+    });
+}
+
 function KoaBusBoy (options?: IOptions) {
     return async (ctx: any, next: any) => {
         try {
-            ctx.formData = await parser(ctx.req, options);
+            ctx.request.body = await parser(ctx.req, options);
             return next();
         } catch (error) {
-            if(!(error instanceof Error)) {
+            if (!(error instanceof Error)) {
                 error = new Error(error);
             }
             ctx.app.emit('error', error, ctx);

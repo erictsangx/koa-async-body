@@ -21,20 +21,22 @@ const os = require('os');
 const tmp = require('tmp');
 const parseParams = require('busboy/lib/utils').parseParams;
 function parser(req, options) {
-    //ignore content-types if it is 'application/x-www-form-urlencoded' & 'multipart/form-data'
     if (!req.headers['content-type']) {
         return new Promise((resolve) => {
             resolve(null);
         });
     }
+    const parsed = parseParams(req.headers['content-type']);
+    if (parsed[0] === 'multipart/form-data') {
+        return formParser(req, options);
+    }
     else {
-        const parsed = parseParams(req.headers['content-type']);
-        if (parsed[0] !== 'application/x-www-form-urlencoded' && parsed[0] !== 'multipart/form-data') {
-            return new Promise((resolve) => {
-                resolve(null);
-            });
+        if (parsed[0] === 'application/json') {
+            return jsonParser(req);
         }
     }
+}
+function formParser(req, options) {
     if (options) {
         options.headers = req.headers;
     }
@@ -91,10 +93,27 @@ function parser(req, options) {
         req.pipe(busboy);
     });
 }
+function jsonParser(req) {
+    return new Promise((resolve) => {
+        let fullBody = '';
+        req.on('data', (chunk) => {
+            fullBody += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                fullBody = JSON.parse(fullBody);
+                resolve(fullBody);
+            }
+            catch (error) {
+                resolve({});
+            }
+        });
+    });
+}
 function KoaBusBoy(options) {
     return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
         try {
-            ctx.formData = yield parser(ctx.req, options);
+            ctx.request.body = yield parser(ctx.req, options);
             return next();
         }
         catch (error) {
