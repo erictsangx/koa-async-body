@@ -1,7 +1,7 @@
 {
-  "name": "koa2-busboy",
-  "version": "1.0.2",
-  "description": "A middleware written on top of busboy for koa2.x to parse url-encoded/multiplart form data",
+  "name": "koa-async-body",
+  "version": "1.0.0",
+  "description": "A body parser written on top of busboy for koa2.x",
   "main": "index.js",
   "scripts": {
     "test": "gulp test"
@@ -22,12 +22,13 @@
     "koa2.x",
     "busboy",
     "middleware",
+    "body",
     "form",
     "multipart"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/erictsangx/koa2-busboy"
+    "url": "https://github.com/erictsangx/koa-async-body"
   },
   "author": "erictsangx",
   "license": "MIT"
