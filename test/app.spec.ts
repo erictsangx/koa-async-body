@@ -11,7 +11,7 @@ const host = 'http://localhost:3000';
 
 import {toBuffer} from './testing';
 
-fdescribe('Test Request', () => {
+describe('Test Request', () => {
     beforeAll((done)=> {
         const Koa = require('koa');
 
