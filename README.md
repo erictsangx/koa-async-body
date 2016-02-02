@@ -1,6 +1,6 @@
-This middleware is written on top of busboy for koa2.x to parse request bodies and ``async/await`` since koa2.x does not support ``generator`` any more and most of koa body parsers are still using ``generator``
+This middleware is written on top of busboy for koa2.x to parse request bodies and ``async/await``.
 
-PS: It only parse `multipart/form-data` and `application/json` so far. Koa2.x can parse ``application/x-www-form-urlencoded`` by itself.
+PS: It will parse content-types with `multipart/form-data`, `application/x-www-form-urlencoded` and `application/json`.
 
 ##Install
 ``npm install koa-async-body``

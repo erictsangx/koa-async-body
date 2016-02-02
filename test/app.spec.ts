@@ -27,12 +27,7 @@ describe('Test Request', () => {
             if (ctx.request.body) {
                 ctx.body = ctx.request.body;
             } else {
-                if (Object.keys(ctx.request.query).length > 0) {
-                    ctx.body = ctx.request.query;
-                }
-                else {
-                    ctx.body = 'hello world';
-                }
+                ctx.body = 'hello world';
             }
         });
 
@@ -44,16 +39,14 @@ describe('Test Request', () => {
         request({
             method: 'POST',
             uri: host,
-            qs: {
+            form: {
                 abc: 'edf',
                 123: '456'
-            },
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded'
             },
             json: true
         }, (error: Error, response: any, body: any) => {
             if (error && response.statusCode !== 200) throw error;
+
             expect(body).toEqual({
                 123: '456',
                 abc: 'edf'
@@ -74,10 +67,8 @@ describe('Test Request', () => {
         }, (error: Error, response: any, body: any) => {
             if (error && response.statusCode !== 200) throw error;
             expect(body).toEqual({
-                fields: {
-                    123: '456',
-                    abc: 'edf'
-                }, files: {}
+                123: '456',
+                abc: 'edf'
             });
             done();
         });
@@ -112,10 +103,9 @@ describe('Test Request', () => {
             json: true
         }, (error: Error, response: any, body: any) => {
             if (error && response.statusCode !== 200) throw error;
-            expect(body.fields).toEqual({});
-            expect(body.files.fileData.fileName).toEqual('dummy.txt');
-            expect(body.files.fileData.mimeType).toEqual('text/plain');
-            expect(body.files.fileData.tmpPath).toContain('/var/tmp');
+            expect(body.fileData.fileName).toEqual('dummy.txt');
+            expect(body.fileData.mimeType).toEqual('text/plain');
+            expect(body.fileData.tmpPath).toContain('/var/tmp');
             done();
         });
 

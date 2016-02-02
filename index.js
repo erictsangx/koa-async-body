@@ -23,11 +23,11 @@ const parseParams = require('busboy/lib/utils').parseParams;
 function parser(req, options) {
     if (!req.headers['content-type']) {
         return new Promise((resolve) => {
-            resolve(null);
+            resolve({});
         });
     }
     const parsed = parseParams(req.headers['content-type']);
-    if (parsed[0] === 'multipart/form-data') {
+    if (parsed[0] === 'multipart/form-data' || parsed[0] === 'application/x-www-form-urlencoded') {
         return formParser(req, options);
     }
     else {
@@ -37,6 +37,7 @@ function parser(req, options) {
     }
 }
 function formParser(req, options) {
+    console.info('parse form');
     if (options) {
         options.headers = req.headers;
     }
@@ -47,10 +48,7 @@ function formParser(req, options) {
     }
     const busboy = new Busboy(options);
     return new Promise((resolve, reject) => {
-        let formData = {
-            fields: {},
-            files: {}
-        };
+        let formData = {};
         let hasError;
         busboy.on('file', function (fieldName, stream, filename, encoding, mimeType) {
             //save tmp files
@@ -59,7 +57,7 @@ function formParser(req, options) {
             stream.pipe(fs.createWriteStream(tmpPath));
             stream.on('end', function () {
                 //push file data
-                formData.files[fieldName] = {
+                formData[fieldName] = {
                     fileName: filename,
                     mimeType: mimeType,
                     tmpPath: tmpPath
@@ -70,8 +68,9 @@ function formParser(req, options) {
             });
         });
         busboy.on('field', function (fieldName, val) {
+            console.info('field', fieldName, val);
             //push text data
-            formData.fields[fieldName] = val;
+            formData[fieldName] = val;
         });
         busboy.on('partsLimit', function () {
             hasError = 'partsLimit';
@@ -113,7 +112,13 @@ function jsonParser(req) {
 function KoaBusBoy(options) {
     return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
         try {
-            ctx.request.body = yield parser(ctx.req, options);
+            const result = yield parser(ctx.req, options);
+            if (Object.keys(result).length === 0) {
+                ctx.request.body = null;
+            }
+            else {
+                ctx.request.body = result;
+            }
             return next();
         }
         catch (error) {

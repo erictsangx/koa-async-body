@@ -35,13 +35,13 @@ interface IOptions {
 function parser (req: IncomingMessage, options?: IOptions) {
     if (!req.headers['content-type']) {
         return new Promise((resolve)=> {
-            resolve(null);
+            resolve({});
         });
     }
 
     const parsed = parseParams(req.headers['content-type']);
 
-    if (parsed[0] === 'multipart/form-data') {
+    if (parsed[0] === 'multipart/form-data' || parsed[0] === 'application/x-www-form-urlencoded') {
         return formParser(req, options);
     }
 
@@ -54,7 +54,7 @@ function parser (req: IncomingMessage, options?: IOptions) {
 
 
 function formParser (req: IncomingMessage, options?: IOptions) {
-
+    console.info('parse form');
     if (options) {
         options.headers = req.headers;
     }
@@ -65,10 +65,7 @@ function formParser (req: IncomingMessage, options?: IOptions) {
     }
     const busboy = new Busboy(options);
     return new Promise((resolve, reject)=> {
-        let formData: any = {
-            fields: {},
-            files: {}
-        };
+        let formData: any = {};
         let hasError: string;
         busboy.on('file', function(fieldName: string, stream: ReadableStream, filename: string, encoding: string, mimeType: string) {
             //save tmp files
@@ -78,7 +75,7 @@ function formParser (req: IncomingMessage, options?: IOptions) {
 
             stream.on('end', function() {
                 //push file data
-                formData.files[fieldName] = {
+                formData[fieldName] = {
                     fileName: filename,
                     mimeType: mimeType,
                     tmpPath: tmpPath
@@ -90,8 +87,9 @@ function formParser (req: IncomingMessage, options?: IOptions) {
             });
         });
         busboy.on('field', function(fieldName: string, val: any) {
+            console.info('field', fieldName, val);
             //push text data
-            formData.fields[fieldName] = val;
+            formData[fieldName] = val;
         });
         busboy.on('partsLimit', function() {
             hasError = 'partsLimit';
@@ -136,7 +134,13 @@ function jsonParser (req: IncomingMessage) {
 function KoaBusBoy (options?: IOptions) {
     return async (ctx: any, next: any) => {
         try {
-            ctx.request.body = await parser(ctx.req, options);
+            const result = await parser(ctx.req, options);
+            if (Object.keys(result).length === 0) {
+                ctx.request.body = null;
+            }
+            else {
+                ctx.request.body = result;
+            }
             return next();
         } catch (error) {
             if (!(error instanceof Error)) {

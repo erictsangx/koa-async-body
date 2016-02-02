@@ -32,12 +32,7 @@ describe('Test Request', () => {
                 ctx.body = ctx.request.body;
             }
             else {
-                if (Object.keys(ctx.request.query).length > 0) {
-                    ctx.body = ctx.request.query;
-                }
-                else {
-                    ctx.body = 'hello world';
-                }
+                ctx.body = 'hello world';
             }
         });
         app.listen(3000, () => {
@@ -48,12 +43,9 @@ describe('Test Request', () => {
         request({
             method: 'POST',
             uri: host,
-            qs: {
+            form: {
                 abc: 'edf',
                 123: '456'
-            },
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded'
             },
             json: true
         }, (error, response, body) => {
@@ -79,10 +71,8 @@ describe('Test Request', () => {
             if (error && response.statusCode !== 200)
                 throw error;
             expect(body).toEqual({
-                fields: {
-                    123: '456',
-                    abc: 'edf'
-                }, files: {}
+                123: '456',
+                abc: 'edf'
             });
             done();
         });
@@ -117,10 +107,9 @@ describe('Test Request', () => {
         }, (error, response, body) => {
             if (error && response.statusCode !== 200)
                 throw error;
-            expect(body.fields).toEqual({});
-            expect(body.files.fileData.fileName).toEqual('dummy.txt');
-            expect(body.files.fileData.mimeType).toEqual('text/plain');
-            expect(body.files.fileData.tmpPath).toContain('/var/tmp');
+            expect(body.fileData.fileName).toEqual('dummy.txt');
+            expect(body.fileData.mimeType).toEqual('text/plain');
+            expect(body.fileData.tmpPath).toContain('/var/tmp');
             done();
         });
         let form = req.form();
