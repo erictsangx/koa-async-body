@@ -1,6 +1,6 @@
 {
   "name": "koa-async-body",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A body parser written on top of busboy for koa2.x",
   "main": "index.js",
   "scripts": {

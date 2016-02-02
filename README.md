@@ -1,6 +1,5 @@
 This middleware is written on top of busboy for koa2.x to parse request bodies and ``async/await``.
-
-PS: It will parse content-types with `multipart/form-data`, `application/x-www-form-urlencoded` and `application/json`.
+It will parse content-types with `multipart/form-data`, `application/x-www-form-urlencoded` and `application/json`.
 
 ##Install
 ``npm install koa-async-body``
@@ -17,18 +16,18 @@ const koaBody = new KoaBody({
         fileSize: 1024*1024*2,
         files: 1,
         parts: 1000,
-    },
-    uploadDir: '/var/tmp'
+    }, //You can find the options in https://github.com/mscdex/busboy
+    uploadDir: '/var/tmp', //customize the upload directory, default use require('os').tmpDir()
+    keyPath: 'foo.bar' //customize appending to `koa context`, default use `ctx.requestBody`
 });
-//You can find the options in https://github.com/mscdex/busboy
 
 const app = new Koa();
 
 app.use(koaBody);
 
 app.use((ctx)=> {
-    if (ctx.request.body) {
-        ctx.body = ctx.request.body;
+    if (ctx.requestBody) { //null if no request body
+        ctx.body = ctx.requestBody;
     } else {
         ctx.body = 'hello world';
     }

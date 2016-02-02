@@ -30,6 +30,7 @@ interface IOptions {
         headerPairs?: number;
     };
     uploadDir?: string;
+    keyPath?: string;
 }
 
 function parser (req: IncomingMessage, options?: IOptions) {
@@ -54,7 +55,6 @@ function parser (req: IncomingMessage, options?: IOptions) {
 
 
 function formParser (req: IncomingMessage, options?: IOptions) {
-    console.info('parse form');
     if (options) {
         options.headers = req.headers;
     }
@@ -68,6 +68,7 @@ function formParser (req: IncomingMessage, options?: IOptions) {
         let formData: any = {};
         let hasError: string;
         busboy.on('file', function(fieldName: string, stream: ReadableStream, filename: string, encoding: string, mimeType: string) {
+
             //save tmp files
             const tmpDir = (options.uploadDir ? options.uploadDir : os.tmpDir());
             const tmpPath = tmp.tmpNameSync({template: tmpDir + '/upload-XXXXXXXXXXXXXXXXXXX'});
@@ -87,7 +88,6 @@ function formParser (req: IncomingMessage, options?: IOptions) {
             });
         });
         busboy.on('field', function(fieldName: string, val: any) {
-            console.info('field', fieldName, val);
             //push text data
             formData[fieldName] = val;
         });
@@ -131,15 +131,41 @@ function jsonParser (req: IncomingMessage) {
     });
 }
 
+function append (ctx: any, keyPath: string, body: any) {
+
+    if (keyPath === '') {
+        ctx.requestBody = body;
+    }
+    else {
+        ctx[keyPath] = body;
+    }
+}
+
 function KoaBusBoy (options?: IOptions) {
+
+    if (options) {
+        //check uploadDir is a string value
+        if (options.uploadDir !== null && options.uploadDir !== undefined) {
+            if (typeof options.uploadDir !== 'string') {
+                throw new Error('koa-async-body: passing a non-string value to uploadDir');
+            }
+        }
+        //check keyPath is string value
+        if (options.keyPath !== null && options.keyPath !== undefined) {
+            if (typeof options.keyPath !== 'string') {
+                throw new Error('koa-async-body: passing a non-string value to keyPath');
+            }
+        }
+    }
+
     return async (ctx: any, next: any) => {
         try {
             const result = await parser(ctx.req, options);
             if (Object.keys(result).length === 0) {
-                ctx.request.body = null;
+                append(ctx, options.keyPath, null);
             }
             else {
-                ctx.request.body = result;
+                append(ctx, options.keyPath, result);
             }
             return next();
         } catch (error) {

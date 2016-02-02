@@ -23,13 +23,14 @@ describe('Test Request', () => {
     beforeAll((done) => {
         const Koa = require('koa');
         const busboy = new KoaBusBoy({
-            uploadDir: '/var/tmp'
+            uploadDir: '/var/tmp',
+            keyPath: 'foobar'
         });
         const app = new Koa();
         app.use(busboy);
         app.use((ctx) => {
-            if (ctx.request.body) {
-                ctx.body = ctx.request.body;
+            if (ctx.foobar) {
+                ctx.body = ctx.foobar;
             }
             else {
                 ctx.body = 'hello world';

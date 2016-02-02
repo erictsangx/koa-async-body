@@ -16,7 +16,8 @@ describe('Test Request', () => {
         const Koa = require('koa');
 
         const busboy = new KoaBusBoy({
-            uploadDir: '/var/tmp'
+            uploadDir: '/var/tmp',
+            keyPath: 'foobar'
         });
 
         const app = new Koa();
@@ -24,8 +25,8 @@ describe('Test Request', () => {
         app.use(busboy);
 
         app.use((ctx: any)=> {
-            if (ctx.request.body) {
-                ctx.body = ctx.request.body;
+            if (ctx.foobar) {
+                ctx.body = ctx.foobar;
             } else {
                 ctx.body = 'hello world';
             }

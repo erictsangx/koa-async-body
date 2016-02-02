@@ -37,7 +37,6 @@ function parser(req, options) {
     }
 }
 function formParser(req, options) {
-    console.info('parse form');
     if (options) {
         options.headers = req.headers;
     }
@@ -68,7 +67,6 @@ function formParser(req, options) {
             });
         });
         busboy.on('field', function (fieldName, val) {
-            console.info('field', fieldName, val);
             //push text data
             formData[fieldName] = val;
         });
@@ -109,15 +107,37 @@ function jsonParser(req) {
         });
     });
 }
+function append(ctx, keyPath, body) {
+    if (keyPath === '') {
+        ctx.requestBody = body;
+    }
+    else {
+        ctx[keyPath] = body;
+    }
+}
 function KoaBusBoy(options) {
+    if (options) {
+        //check uploadDir is a string value
+        if (options.uploadDir !== null && options.uploadDir !== undefined) {
+            if (typeof options.uploadDir !== 'string') {
+                throw new Error('koa-async-body: passing a non-string value to uploadDir');
+            }
+        }
+        //check keyPath is string value
+        if (options.keyPath !== null && options.keyPath !== undefined) {
+            if (typeof options.keyPath !== 'string') {
+                throw new Error('koa-async-body: passing a non-string value to keyPath');
+            }
+        }
+    }
     return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
         try {
             const result = yield parser(ctx.req, options);
             if (Object.keys(result).length === 0) {
-                ctx.request.body = null;
+                append(ctx, options.keyPath, null);
             }
             else {
-                ctx.request.body = result;
+                append(ctx, options.keyPath, result);
             }
             return next();
         }
