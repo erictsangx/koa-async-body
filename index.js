@@ -108,7 +108,7 @@ function jsonParser(req) {
     });
 }
 function append(ctx, keyPath, body) {
-    if (keyPath === '') {
+    if (keyPath === '' || keyPath === null || keyPath === undefined) {
         ctx.requestBody = body;
     }
     else {

@@ -133,7 +133,7 @@ function jsonParser (req: IncomingMessage) {
 
 function append (ctx: any, keyPath: string, body: any) {
 
-    if (keyPath === '') {
+    if (keyPath === '' || keyPath === null || keyPath === undefined) {
         ctx.requestBody = body;
     }
     else {
