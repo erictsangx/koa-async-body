@@ -40,6 +40,17 @@ describe('Test Request', () => {
             done();
         });
     });
+    it('should return empty body', (done) => {
+        request({
+            method: 'POST',
+            uri: host,
+        }, (error, response, body) => {
+            if (error && response.statusCode !== 200)
+                throw error;
+            expect(body).toEqual('{}');
+            done();
+        });
+    });
     it('should support application/x-www-form-urlencoded', (done) => {
         request({
             method: 'POST',

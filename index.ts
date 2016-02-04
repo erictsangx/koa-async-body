@@ -50,6 +50,11 @@ function parser (req: IncomingMessage, options?: IOptions) {
         if (parsed[0] === 'application/json') {
             return jsonParser(req);
         }
+        else {
+            return new Promise((resolve)=> {
+                resolve({});
+            });
+        }
     }
 }
 
@@ -161,12 +166,7 @@ function KoaBusBoy (options?: IOptions) {
     return async (ctx: any, next: any) => {
         try {
             const result = await parser(ctx.req, options);
-            if (Object.keys(result).length === 0) {
-                append(ctx, options.keyPath, null);
-            }
-            else {
-                append(ctx, options.keyPath, result);
-            }
+            append(ctx, options.keyPath, result);
             return next();
         } catch (error) {
             if (!(error instanceof Error)) {

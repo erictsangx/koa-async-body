@@ -34,6 +34,11 @@ function parser(req, options) {
         if (parsed[0] === 'application/json') {
             return jsonParser(req);
         }
+        else {
+            return new Promise((resolve) => {
+                resolve({});
+            });
+        }
     }
 }
 function formParser(req, options) {
@@ -133,12 +138,7 @@ function KoaBusBoy(options) {
     return (ctx, next) => __awaiter(this, void 0, Promise, function* () {
         try {
             const result = yield parser(ctx.req, options);
-            if (Object.keys(result).length === 0) {
-                append(ctx, options.keyPath, null);
-            }
-            else {
-                append(ctx, options.keyPath, result);
-            }
+            append(ctx, options.keyPath, result);
             return next();
         }
         catch (error) {
