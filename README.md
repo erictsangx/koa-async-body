@@ -18,7 +18,7 @@ const koaBody = new KoaBody({
         parts: 1000,
     }, //You can find the options in https://github.com/mscdex/busboy
     uploadDir: '/var/tmp', //customize the upload directory, default use require('os').tmpDir()
-    keyPath: 'foo.bar' //customize appending to `koa context`, default use `ctx.requestBody`
+    keyPath: 'foobar' //customize appending to `koa context`, default use `ctx.requestBody`
 });
 
 const app = new Koa();
