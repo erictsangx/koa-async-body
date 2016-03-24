@@ -55,17 +55,34 @@ function formParser(req, options) {
         let formData = {};
         let hasError;
         busboy.on('file', function (fieldName, stream, filename, encoding, mimeType) {
+            // If fieldName ends in [], it was intended to be an array of files
+            if (
+                // fieldname has not already been added to formData obj
+                typeof formData[fieldName] === 'undefined'
+                // and it is a string
+                && typeof fieldName === 'string'
+                // and last 2 chars are [] (per FormData.append client api)
+                && fieldName.slice(-2) == '[]')
+            {
+                formData[fieldName] = []
+            }
+
             //save tmp files
             const tmpDir = (options.uploadDir ? options.uploadDir : os.tmpDir());
             const tmpPath = tmp.tmpNameSync({ template: tmpDir + '/upload-XXXXXXXXXXXXXXXXXXX' });
             stream.pipe(fs.createWriteStream(tmpPath));
             stream.on('end', function () {
                 //push file data
-                formData[fieldName] = {
+                var data = {
                     fileName: filename,
                     mimeType: mimeType,
                     tmpPath: tmpPath
                 };
+                if (Array.isArray(formData[fieldName])) {
+                    formData[fieldName].push(data)
+                } else {
+                    formData[fieldName] = data
+                }
             });
             stream.on('limit', function () {
                 hasError = 'filesSizeLimit';
